@@ -3,13 +3,12 @@ import http from 'http';
 import { Server } from 'socket.io';
 import initWebsockets from './dist/websockets.js';
 
-const host = 'localhost';
-const port = 3000;
+const port = process.env.PORT || 3000;
 
 const app = http.createServer(handler);
 
 initWebsockets(new Server(app));
 
-app.listen(port, host, () => {
-	console.log(`Server is running on http://${host}:${port}`);
+app.listen(port, () => {
+	console.log(`Server is running on port ${port}`);
 });
