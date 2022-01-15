@@ -26,7 +26,7 @@
 	onMount(update);
 </script>
 
-<div class="flex justify-between mx-auto">
+<div class="flex justify-center mx-auto">
 	{#each letters as letter}
 		<div
 			class="text-2xl font-bold border border-sky-500 px-2 py-1 w-[50px] h-[50px] flex items-center justify-center {letter.className}"
