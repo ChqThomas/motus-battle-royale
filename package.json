@@ -1,9 +1,9 @@
 {
-	"name": "motussss",
+	"name": "motus-vs",
 	"version": "0.0.1",
 	"scripts": {
 		"dev": "yarn build:websockets && concurrently --kill-others npm:dev:*",
-		"dev:multiplayer": "yarn build:websockets --watch",
+		"dev:websockets": "yarn build:websockets --watch",
 		"dev:sveltekit": "svelte-kit dev",
 		"build": "yarn build:websockets && svelte-kit build",
 		"build:websockets": "esbuild src/lib/websockets.ts --bundle --outfile=dist/websockets.js --platform=node --format=esm",
@@ -38,7 +38,10 @@
 	"dependencies": {
 		"@sveltejs/adapter-node": "^1.0.0-next.61",
 		"concurrently": "^7.0.0",
+		"lodash": "^4.17.21",
 		"socket.io": "^4.4.1",
-		"socket.io-client": "^4.4.1"
+		"socket.io-client": "^4.4.1",
+		"unique-names-generator": "^4.6.0",
+		"vite-plugin-restart": "^0.1.0"
 	}
 }

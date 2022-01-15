@@ -1,6 +1,7 @@
 import adapter from '@sveltejs/adapter-node';
 import preprocess from 'svelte-preprocess';
 import { Server } from 'socket.io';
+import ViteRestart from 'vite-plugin-restart';
 
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
@@ -22,6 +23,9 @@ const config = {
 						});
 					},
 				},
+				ViteRestart.default({
+					restart: ['src/lib/websockets.ts'],
+				}),
 			],
 		},
 	},
