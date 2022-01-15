@@ -43,6 +43,11 @@
 			return 'bg-m-yellow';
 		}
 
+		// Si le mot cherché ne contient pas la lettre et qu'elle a déjà été tapée
+		if (!requiredWord.includes(letter) && words.join('').split('').includes(letter)) {
+			return 'opacity-25 bg-m-blue';
+		}
+
 		return 'bg-m-blue';
 	}
 </script>
