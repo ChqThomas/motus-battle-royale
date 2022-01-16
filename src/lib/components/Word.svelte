@@ -19,7 +19,7 @@
 
 		for (const [index, letter] of letters.entries()) {
 			await new Promise((r) => setTimeout(r, 350));
-			letters[index].className = getLetterClass(requiredWord, letter.char, letter.index);
+			letters[index].className = getLetterClass(requiredWord, word, letter.char, letter.index);
 		}
 	}
 
