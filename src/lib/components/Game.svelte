@@ -2,23 +2,40 @@
 	import Word from '$lib/components/Word.svelte';
 	import Keyboard from '$lib/components/Keyboard.svelte';
 	import { createEventDispatcher } from 'svelte';
-	import { getWordStatuses, validLetter } from '$lib/motus';
-	import _ from 'lodash';
+	import { getWordStatuses } from '$lib/motus';
+	import type { RoomState } from '../../global';
 	const dispatch = createEventDispatcher();
 
 	export let word = 'MOTUSVS';
 	export let opponent = false;
+	export let opponentName = '';
+	export let state: RoomState | null = null;
 
-	const maxLetter = word.length;
+	let maxLetter = word.length || 7;
 	const maxGuesses = 6;
 
 	export let inputWords = [];
 	let inputWordsKeyboard = [];
 
 	let currentWordInput = '';
-	let displayed = word[0];
-	let locked = false;
+	let displayed = word.length ? word[0] : '';
+	let locked = true;
 	$: currentWord = currentWordInput.toUpperCase();
+
+	function start() {
+		locked = false;
+		displayed = word[0];
+		maxLetter = word.length;
+	}
+
+	$: {
+		if (word.length) {
+			start();
+		}
+		if (state === 'finished') {
+			locked = true;
+		}
+	}
 
 	function handleKeydown(event) {
 		if (opponent || locked) {
@@ -56,7 +73,13 @@
 					displayed += allStatuses.map((s) => s[index]).some((s) => s === 'good') ? letter : '.';
 				});
 
-				locked = false;
+				if (displayed === word) {
+					displayed = '';
+					locked = true;
+				} else {
+					locked = false;
+				}
+
 				inputWordsKeyboard = inputWords;
 			}, 350 * maxLetter);
 		}
@@ -65,12 +88,14 @@
 
 <svelte:window on:keydown="{handleKeydown}" />
 
-<div class="flex flex-col justify-center items-centers max-w-2xl mx-auto mb-16">
-	<h1 class="font-bold text-4xl md:text-5xl tracking-tight mb-4 text-white text-center">
-		{#if opponent}Adversaire{:else}MOTUS VS{/if}
-	</h1>
+<div class="flex flex-col justify-center items-centers max-w-2xl mx-auto">
+	{#if opponent}
+		<h1 class="font-bold text-4xl md:text-4xl tracking-tight mb-4 text-white text-center">{opponentName}</h1>
+	{:else}
+		<h1 class="font-bold text-4xl md:text-5xl tracking-tight mb-20 text-white text-center">MOTUS BATTLE ROYALE</h1>
+	{/if}
 	<div class="mb-8 prose leading-6 text-gray-100 text-center">
-		<div class="mt-20">
+		<div>
 			{#each inputWords as row}
 				<Word opponent="{opponent}" requiredWord="{word}" word="{row}" />
 			{/each}

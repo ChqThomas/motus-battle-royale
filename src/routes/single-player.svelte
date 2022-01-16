@@ -35,5 +35,9 @@
 	}
 </script>
 
-<Soundboard sounds="{sounds}" />
-<Game word="{word}" on:addWord="{onAddWord}" opponent="{false}" />
+<main class="flex h-screen">
+	<div class="m-auto">
+		<Soundboard sounds="{sounds}" />
+		<Game word="{word}" on:addWord="{onAddWord}" opponent="{false}" />
+	</div>
+</main>

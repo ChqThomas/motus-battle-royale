@@ -1,8 +1,9 @@
 /// <reference types="@sveltejs/kit" />
 
+export type RoomState = 'waiting' | 'starting' | 'started' | 'finished';
 export type GameState = {
 	word?: string;
-	state: 'waiting' | 'starting' | 'started' | 'finished';
+	state: RoomState;
 	opponentWords: string[];
 	players: string[];
 	winner?: string;

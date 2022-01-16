@@ -2,6 +2,7 @@ import type { Server, Socket as IoSocket } from 'socket.io';
 import _ from 'lodash';
 import words from './words';
 import Player from './game/Player';
+import type { RoomState } from '../global';
 
 type Socket = IoSocket & {
 	player: Player;
@@ -14,6 +15,7 @@ type PlayerWord = {
 };
 
 type Room = {
+	state: RoomState;
 	name: string;
 	word?: string;
 	players: Socket[];
@@ -33,6 +35,7 @@ class RoomManager {
 		if (!room) {
 			room = {
 				name,
+				state: 'waiting',
 				players: [],
 				words: [],
 			};
@@ -57,8 +60,14 @@ class RoomManager {
 	public addToRoom(socket: Socket, name: string) {
 		const room = this.getOrCreateRoom(name);
 
-		if (room.players.length >= 2) {
+		// On ne peut pas rejoindre une partie lancée, ni rejoindre deux fois la même room
+		if (room.state !== 'waiting' || _.find(room.players, socket)) {
 			return false;
+		}
+
+		// Le premier joueur devient le propriétaire de la room
+		if (room.players.length === 0) {
+			socket.player.owner = true;
 		}
 
 		room.players.push(socket);
@@ -68,12 +77,8 @@ class RoomManager {
 		console.log('room players', name, room.players.length);
 
 		this.io.to(room.name).emit('update-game-state', {
-			players: room.players.map((socket) => socket.player.username),
+			players: room.players.map((socket) => socket.player),
 		});
-
-		if (room.players.length === 2) {
-			this.startGame(room);
-		}
 
 		return true;
 	}
@@ -85,20 +90,30 @@ class RoomManager {
 			console.log('removed from room', socket.id, room.name);
 			if (room.players.length === 0) {
 				this.removeRoom(room.name);
+			} else {
+				// On transfert le statut de propriétaire à un autre joueur
+				if (socket.player.owner === true) {
+					room.players[0].player.owner = true;
+				}
+				this.io.to(room.name).emit('update-game-state', {
+					players: room.players.map((socket) => socket.player),
+				});
 			}
 		}
 	}
 
 	public async startGame(room: Room) {
 		console.log('start game', room.name);
+		room.state = 'starting';
 		this.io.to(room.name).emit('update-game-state', {
-			state: 'starting',
+			state: room.state,
 		});
 		await new Promise((r) => setTimeout(r, 3000));
 		room.word = this.getRandomWord();
+		room.state = 'started';
 		console.log(room.word);
 		this.io.to(room.name).emit('update-game-state', {
-			state: 'started',
+			state: room.state,
 			word: room.word,
 		});
 	}
@@ -111,16 +126,13 @@ class RoomManager {
 		});
 		socket.to(socket.joined.name).emit('update-game-state', {
 			state: 'started',
-			opponentWords: _.map(
-				socket.joined.words.filter((w) => w.player === socket.player.username),
-				'word',
-			),
+			opponentWords: socket.joined.words,
 		});
 
 		if (word === socket.joined.word) {
 			this.io.to(socket.joined.name).emit('update-game-state', {
 				state: 'finished',
-				winner: socket.id,
+				winner: socket.player.username,
 			});
 		}
 	}
@@ -147,6 +159,10 @@ export default async function initWebsockets(io: Server): Promise<void> {
 
 		socket.on('new-word', ({ word }) => {
 			manager.addWord(socket, word);
+		});
+
+		socket.on('start-game', () => {
+			manager.startGame(socket.joined);
 		});
 	});
 	setInterval(() => io.emit('time', new Date().toTimeString()), 1000);
