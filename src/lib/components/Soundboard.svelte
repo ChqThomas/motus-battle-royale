@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { browser } from '$app/env';
-	import { afterUpdate } from 'svelte';
+	import { afterUpdate, onMount } from 'svelte';
+	import { volume } from '$lib/stores';
 
 	let good, bad, wrong;
 
@@ -31,9 +32,13 @@
 	function playNext() {
 		if (audioPointer < playlist.length) {
 			audio = playlist[audioPointer];
+			audio.volume = $volume / 100;
 			audio.addEventListener('ended', playNext);
 			audio.play();
 			audioPointer += 1;
+		} else {
+			playlist = [];
+			sounds = [];
 		}
 	}
 

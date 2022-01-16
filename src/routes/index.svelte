@@ -21,7 +21,7 @@
 			<div class="mt-8 prose leading-6 text-gray-100 text-center"> </div>
 
 			<div class="grid sm:grid-cols-2 gap-0">
-				<div class="border-b-0 sm:border-r p-8 relative">
+				<div class="border-r border-m-blue p-8 relative">
 					<button
 						on:click="{playSolo}"
 						class="text-2xl bg-m-blue hover:bg-m-red text-white hover:text-black transition-colors font-bold py-4 px-6 rounded"

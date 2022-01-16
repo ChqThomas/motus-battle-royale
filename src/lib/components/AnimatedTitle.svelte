@@ -1,6 +1,6 @@
 <script lang="ts">
 	export let title = '';
-	export let type = 'linear';
+	export let type = 'random';
 
 	function getDelay(index) {
 		if (type === 'random') {

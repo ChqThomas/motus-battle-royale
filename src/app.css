@@ -3,14 +3,8 @@
 @tailwind components;
 @tailwind utilities;
 
-
 body {
-    background-color: #2b2b2b;
-    height: 100vh;
-    text-align: center;
-    color: white;
-    margin: 0;
-    padding: 0;
+    @apply bg-gray-800 h-screen text-center text-white p-0;
 }
 
 @keyframes color-change-1 {
