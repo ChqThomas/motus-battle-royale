@@ -84,6 +84,7 @@
 
 	onDestroy(() => {
 		$ws.disconnect();
+		gameState.reset();
 	});
 
 	function onAddWord(event) {
@@ -101,9 +102,11 @@
 <div class="battle-grid">
 	<div class="battle-grid-left">
 		{#if $player}
-			<div class="mb-4 prose leading-6 text-gray-100 text-center">
-				Username: <span class="font-bold">{$player.username}</span>
-			</div>
+			{#if $gameState.state === 'finished'}
+				<div class="mb-5">
+					Partie terminée ! Le mot était <span class="font-bold text-xl">{$gameState.word}</span>
+				</div>
+			{/if}
 			{#if $player.owner && $gameState.state === 'waiting'}
 				<button
 					on:click="{startGame}"
@@ -115,15 +118,19 @@
 		<Game word="{$gameState.word}" state="{$gameState.state}" on:addWord="{onAddWord}" />
 	</div>
 	<div class="battle-grid-right">
-		{#each opponents as opponent, i}
-			<div style="height: {opponentHeight}px; transform: scale({opponentScale}); grid-row: {opponent.row}">
-				<Game
-					word="{$gameState.word}"
-					opponent="{true}"
-					opponentName="{opponent.username}"
-					inputWords="{opponent.words}"
-				/>
-			</div>
-		{/each}
+		{#if opponents.length}
+			{#each opponents as opponent, i}
+				<div style="height: {opponentHeight}px; transform: scale({opponentScale}); grid-row: {opponent.row}">
+					<Game
+						word="{$gameState.word}"
+						opponent="{true}"
+						opponentName="{opponent.username}"
+						inputWords="{opponent.words}"
+					/>
+				</div>
+			{/each}
+		{:else}
+			<div class="text-xl mx-auto">En attente d'aversaires...</div>
+		{/if}
 	</div>
 </div>
