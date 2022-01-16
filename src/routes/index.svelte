@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
+	import AnimatedTitle from '$lib/components/AnimatedTitle.svelte';
 
 	function createGame() {
 		let roomName = (Math.random() + 1).toString(36).substring(7).toUpperCase();
@@ -14,7 +15,9 @@
 <main class="flex h-screen">
 	<div class="m-auto">
 		<div class="flex flex-col justify-center items-centers max-w-2xl mx-auto mb-16">
-			<h1 class="font-bold text-4xl md:text-5xl tracking-tight mb-4 text-white text-center">MOTUS VS</h1>
+			<h1 class="font-bold text-4xl md:text-5xl tracking-tight mb-4 text-white text-center">
+				<AnimatedTitle title="MOTUS BATTLE ROYALE" />
+			</h1>
 			<div class="mt-8 prose leading-6 text-gray-100 text-center"> </div>
 
 			<div class="grid sm:grid-cols-2 gap-0">

@@ -30,6 +30,7 @@
 
 	import Game from '$lib/components/Game.svelte';
 	import SoundBoard from '$lib/components/Soundboard.svelte';
+	import AnimatedTitle from '$lib/components/AnimatedTitle.svelte';
 	import type { GameState } from '../../global';
 	import { browser } from '$app/env';
 	import _ from 'lodash';
@@ -94,6 +95,11 @@
 
 <div class="battle-grid">
 	<div class="battle-grid-left">
+		<h1 class="font-bold text-4xl md:text-5xl tracking-tight mb-4 text-white text-center">
+			<a href="/">
+				<AnimatedTitle title="MOTUS BATTLE ROYALE" />
+			</a>
+		</h1>
 		<h1 class="font-bold text-4xl md:text-5xl tracking-tight mb-8 text-white text-center"
 			>Room {$page.params.name}</h1
 		>

@@ -12,3 +12,25 @@ body {
     margin: 0;
     padding: 0;
 }
+
+@keyframes color-change-1 {
+    0% {
+        color: theme('colors.m-blue');
+    }
+    25% {
+        color: theme('colors.m-yellow');
+    }
+    50% {
+        color: theme('colors.m-yellow');
+    }
+    75% {
+        color: theme('colors.m-red');
+    }
+    100% {
+        color: theme('colors.m-red');
+    }
+}
+
+.color-change-1 {
+    animation: color-change-1 3s step-end infinite alternate both;
+}

@@ -89,10 +89,8 @@
 <svelte:window on:keydown="{handleKeydown}" />
 
 <div class="flex flex-col justify-center items-centers max-w-2xl mx-auto">
-	{#if opponent}
+	{#if opponentName}
 		<h1 class="font-bold text-4xl md:text-4xl tracking-tight mb-4 text-white text-center">{opponentName}</h1>
-	{:else}
-		<h1 class="font-bold text-4xl md:text-5xl tracking-tight mb-20 text-white text-center">MOTUS BATTLE ROYALE</h1>
 	{/if}
 	<div class="mb-8 prose leading-6 text-gray-100 text-center">
 		<div>

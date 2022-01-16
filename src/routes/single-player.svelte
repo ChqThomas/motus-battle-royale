@@ -23,6 +23,7 @@
 <script lang="ts">
 	import Game from '$lib/components/Game.svelte';
 	import Soundboard from '$lib/components/Soundboard.svelte';
+	import AnimatedTitle from '$lib/components/AnimatedTitle.svelte';
 
 	export let word;
 
@@ -37,6 +38,11 @@
 
 <main class="flex h-screen">
 	<div class="m-auto">
+		<h1 class="font-bold text-4xl md:text-5xl tracking-tight mb-4 text-white text-center mb-20">
+			<a href="/">
+				<AnimatedTitle title="MOTUS BATTLE ROYALE" />
+			</a>
+		</h1>
 		<Soundboard sounds="{sounds}" />
 		<Game word="{word}" on:addWord="{onAddWord}" opponent="{false}" />
 	</div>
