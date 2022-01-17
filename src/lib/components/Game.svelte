@@ -80,15 +80,17 @@
 			displayed += allStatuses.map((s) => s[index]).some((s) => s === 'good') ? letter : '.';
 		});
 
+		let win = false;
 		if (displayed === word) {
 			displayed = '';
 			locked = true;
 			dispatch('win');
+			win = true;
 		} else {
 			locked = false;
 		}
 
-		if (inputWords.length >= maxGuesses) {
+		if (!win && !inputWords.length >= maxGuesses) {
 			dispatch('lose');
 		}
 
