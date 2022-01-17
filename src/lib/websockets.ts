@@ -20,6 +20,7 @@ type Room = {
 	word?: string;
 	players: Socket[];
 	words: PlayerWord[];
+	winner?: Player;
 };
 
 class RoomManager {
@@ -130,6 +131,7 @@ class RoomManager {
 		});
 
 		if (word === socket.joined.word) {
+			socket.joined.winner = socket.player;
 			this.io.to(socket.joined.name).emit('update-game-state', {
 				state: 'finished',
 				winner: socket.player.username,

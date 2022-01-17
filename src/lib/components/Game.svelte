@@ -2,6 +2,7 @@
 	import Word from '$lib/components/Word.svelte';
 	import Keyboard from '$lib/components/Keyboard.svelte';
 	import { createEventDispatcher } from 'svelte';
+	import { blur } from 'svelte/transition';
 	import { getWordStatuses } from '$lib/motus';
 	import type { RoomState } from '../../global';
 	const dispatch = createEventDispatcher();
@@ -33,7 +34,9 @@
 			start();
 		}
 		if (state === 'finished') {
-			locked = true;
+			setTimeout(function () {
+				locked = true;
+			}, maxLetter * 250);
 		}
 	}
 
@@ -64,57 +67,66 @@
 			});
 			currentWordInput = '';
 			displayed = '';
-			setTimeout(function () {
-				let allStatuses = inputWords.map((w) => {
-					return getWordStatuses(word, w);
-				});
-
-				word.split('').forEach((letter, index) => {
-					displayed += allStatuses.map((s) => s[index]).some((s) => s === 'good') ? letter : '.';
-				});
-
-				if (displayed === word) {
-					displayed = '';
-					locked = true;
-				} else {
-					locked = false;
-				}
-
-				inputWordsKeyboard = inputWords;
-			}, 350 * maxLetter);
 		}
+	}
+
+	function onWordDisplayed() {
+		let allStatuses = inputWords.map((w) => {
+			return getWordStatuses(word, w);
+		});
+
+		displayed = '';
+		word.split('').forEach((letter, index) => {
+			displayed += allStatuses.map((s) => s[index]).some((s) => s === 'good') ? letter : '.';
+		});
+
+		if (displayed === word) {
+			displayed = '';
+			locked = true;
+			dispatch('win');
+		} else {
+			locked = false;
+		}
+
+		if (inputWords.length >= maxGuesses) {
+			dispatch('lose');
+		}
+
+		inputWordsKeyboard = inputWords;
 	}
 </script>
 
 <svelte:window on:keydown="{handleKeydown}" />
 
-<div class="flex flex-col justify-center items-centers max-w-2xl mx-auto">
-	{#if opponentName}
-		<h1 class="font-bold text-4xl md:text-4xl tracking-tight mb-4 text-white text-center">{opponentName}</h1>
-	{/if}
-	<div class="mb-8 prose leading-6 text-gray-100 text-center">
-		<div>
-			{#each inputWords as row}
-				<Word opponent="{opponent}" requiredWord="{word}" word="{row}" />
-			{/each}
-		</div>
-		{#if inputWords.length < maxGuesses}
-			{#each [...Array(maxGuesses - inputWords.length).keys()] as row, i}
-				<div class="flex justify-center mx-auto">
-					<!--				<Word opponent="{opponent}" requiredWord="{word}" word="{currentWord.padEnd(maxLetter, '.')}" />-->
-					{#each i === 0 && currentWordInput === '' ? displayed.padEnd(maxLetter, '.') : currentWord.padEnd(maxLetter, '.') as letter}
-						<div
-							class="text-2xl font-bold border bg-m-blue border-sky-500 px-2 py-1 w-[50px] h-[50px] flex items-center justify-center"
-						>
-							{#if i === 0}{opponent ? '.' : letter}{/if}</div
-						>
-					{/each}
-				</div>
-			{/each}
+{#key 'game'}
+	<div transition:blur class="flex flex-col justify-center items-centers max-w-2xl mx-auto">
+		{#if opponentName}
+			<h1 class="font-bold text-4xl md:text-4xl tracking-tight mb-4 text-white text-center">{opponentName}</h1>
 		{/if}
+		<div class="mb-8 prose leading-6 text-gray-100 text-center">
+			<div>
+				{#each inputWords as row}
+					<Word on:displayed="{onWordDisplayed}" opponent="{opponent}" requiredWord="{word}" word="{row}" />
+				{/each}
+			</div>
+			{#if inputWords.length < maxGuesses}
+				{#each [...Array(maxGuesses - inputWords.length).keys()] as row, i}
+					<div class="flex justify-center mx-auto">
+						<!--				<Word opponent="{opponent}" requiredWord="{word}" word="{currentWord.padEnd(maxLetter, '.')}" />-->
+						{#each i === 0 && currentWordInput === '' ? displayed.padEnd(maxLetter, '.') : currentWord.padEnd(maxLetter, '.') as letter}
+							<div
+								class="text-2xl font-bold border bg-m-blue border-sky-500 px-2 py-1 w-[50px] h-[50px] flex items-center justify-center"
+							>
+								{#if i === 0}{opponent ? '.' : locked ? '' : letter}{/if}</div
+							>
+						{/each}
+					</div>
+				{/each}
+			{/if}
 
-		{#if !opponent}
-			<Keyboard words="{inputWordsKeyboard}" requiredWord="{word}" />
-		{/if}
+			{#if !opponent}
+				<Keyboard words="{inputWordsKeyboard}" requiredWord="{word}" />
+			{/if}
+		</div>
 	</div>
-</div>
+{/key}

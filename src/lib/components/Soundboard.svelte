@@ -3,16 +3,13 @@
 	import { afterUpdate, onMount } from 'svelte';
 	import { volume } from '$lib/stores';
 
-	let good, bad, wrong;
+	let good, bad, wrong, winner, loser, bouleNoire;
 
 	export let sounds = [];
-	let playlist = [];
-	let audioPointer = 0;
-	let audio;
 
-	function play() {
-		playlist = [];
-		audioPointer = 0;
+	async function play(sounds) {
+		console.log(sounds);
+		let playlist: HTMLAudioElement[] = [];
 		sounds.forEach((item) => {
 			switch (item) {
 				case 'good':
@@ -24,29 +21,41 @@
 				case 'wrong':
 					playlist.push(wrong);
 					break;
+				case 'winner':
+					playlist.push(winner);
+					break;
+				case 'loser':
+					playlist.push(loser);
+					break;
+				case 'bouleNoire':
+					playlist.push(bouleNoire);
+					break;
 			}
 		});
-		playNext();
+		await playPlaylist(playlist);
 	}
 
-	function playNext() {
-		if (audioPointer < playlist.length) {
-			audio = playlist[audioPointer];
-			audio.volume = $volume / 100;
-			audio.addEventListener('ended', playNext);
-			audio.play();
-			audioPointer += 1;
-		} else {
-			playlist = [];
-			sounds = [];
+	async function playPlaylist(playlist) {
+		for (const sound of playlist) {
+			sound.volume = $volume / 100;
+			sound.currentTime = 0;
+			sound.play();
+			await new Promise((r) => setTimeout(r, 250));
 		}
 	}
 
 	if (browser) {
-		afterUpdate(play);
+		afterUpdate(async () => {
+			const playlist = sounds;
+			sounds = [];
+			await play(playlist);
+		});
 	}
 </script>
 
 <audio bind:this="{good}" src="/good.wav"></audio>
 <audio bind:this="{bad}" src="/bad.wav"></audio>
 <audio bind:this="{wrong}" src="/wrong.wav"></audio>
+<audio bind:this="{winner}" src="/winner.wav"></audio>
+<audio bind:this="{loser}" src="/loser.wav"></audio>
+<audio bind:this="{bouleNoire}" src="/boule-noire.wav"></audio>

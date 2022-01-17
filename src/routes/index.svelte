@@ -14,29 +14,29 @@
 
 <main class="flex h-screen">
 	<div class="m-auto">
-		<div class="flex flex-col justify-center items-centers max-w-2xl mx-auto mb-16">
-			<h1 class="font-bold text-4xl md:text-5xl tracking-tight mb-4 text-white text-center">
+		<div class="flex flex-col justify-center mx-auto mb-16 max-w-2xl items-centers">
+			<h1 class="mb-4 text-4xl font-bold tracking-tight text-center text-white md:text-5xl">
 				<AnimatedTitle title="MOTUS BATTLE ROYALE" />
 			</h1>
-			<div class="mt-8 prose leading-6 text-gray-100 text-center"> </div>
+			<div class="mt-8 leading-6 text-center text-gray-100 prose"> </div>
 
-			<div class="grid sm:grid-cols-2 gap-0">
-				<div class="border-r border-m-blue p-8 relative">
+			<div class="grid gap-0 sm:grid-cols-2">
+				<div class="relative p-8 border-r border-m-blue">
 					<button
 						on:click="{playSolo}"
-						class="text-2xl bg-m-blue hover:bg-m-red text-white hover:text-black transition-colors font-bold py-4 px-6 rounded"
+						class="px-6 py-4 text-2xl font-bold text-white rounded transition-colors bg-m-blue hover:bg-m-red hover:text-black"
 						>Jouer tout seul</button
 					>
-					<div class="absolute right-0 transform translate-x-7 top-1/2 -translate-y-7">
+					<div class="absolute right-0 top-1/2 transform translate-x-7 -translate-y-7">
 						<p
-							class="font-bold text-gray-500 rounded-full bg-gray-50 flex items-center justify-center text-sm"
+							class="flex justify-center items-center text-sm font-bold text-gray-500 bg-gray-50 rounded-full"
 						></p>
 					</div>
 				</div>
 				<div class="p-8">
 					<button
 						on:click="{createGame}"
-						class="text-2xl bg-m-blue hover:bg-m-red text-white hover:text-black transition-colors font-bold py-4 px-6 rounded"
+						class="px-6 py-4 text-2xl font-bold text-white rounded transition-colors bg-m-blue hover:bg-m-red hover:text-black"
 						>Créer une partie</button
 					>
 				</div>

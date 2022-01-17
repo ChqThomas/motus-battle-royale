@@ -28,7 +28,9 @@
 	import { ws, gameState, player } from '$lib/stores';
 	import { page } from '$app/stores';
 	import { onMount, onDestroy } from 'svelte';
+	import { blur } from 'svelte/transition';
 
+	import Countdown from '$lib/components/Countdown.svelte';
 	import Game from '$lib/components/Game.svelte';
 	import SoundBoard from '$lib/components/Soundboard.svelte';
 	import type { GameState } from '../../global';
@@ -95,27 +97,88 @@
 	function startGame() {
 		$ws.emit('start-game');
 	}
+
+	function onWin() {
+		sounds = ['winner'];
+	}
+
+	function onLose() {
+		sounds = ['loser'];
+	}
+
+	function onOpponentWin() {
+		sounds = ['bouleNoire'];
+	}
 </script>
 
 <SoundBoard sounds="{sounds}" />
 
 <div class="battle-grid">
 	<div class="battle-grid-left">
-		{#if $player}
-			{#if $gameState.state === 'finished'}
-				<div class="mb-5">
-					Partie terminée ! Le mot était <span class="font-bold text-xl">{$gameState.word}</span>
-				</div>
+		<div class="h-[120px]">
+			{#if $player}
+				{#if $gameState.state === 'waiting'}
+					{#if $player.owner}
+						<button
+							in:blur
+							on:click="{startGame}"
+							class="mb-8 bg-m-blue hover:bg-m-red text-white hover:text-black transition-colors font-bold py-2 px-4 rounded"
+							>Démarrer la partie</button
+						>
+					{:else}
+						<button
+							in:blur
+							type="button"
+							class="inline-flex items-center px-4 py-2 font-semibold leading-6 text-sm shadow rounded-md text-white bg-m-blue hover:bg-m-blue transition ease-in-out duration-150 cursor-not-allowed"
+							disabled=""
+						>
+							<svg
+								class="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+								xmlns="http://www.w3.org/2000/svg"
+								fill="none"
+								viewBox="0 0 24 24"
+							>
+								<circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"
+								></circle>
+								<path
+									class="opacity-75"
+									fill="currentColor"
+									d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+								></path>
+							</svg>
+							En attente du lancement de la partie
+						</button>
+					{/if}
+				{/if}
+				{#if $gameState.state === 'starting'}
+					<div in:blur="{{ duration: 300 }}" out:blur="{{ duration: 500, delay: 250 }}">
+						<Countdown countdown="{3}" />
+					</div>
+				{/if}
+				{#if $gameState.state === 'finished'}
+					<div in:blur="{{ duration: 150, delay: $gameState.word.length * 250 }}">
+						<div class="mb-5">
+							Partie terminée ! Le mot était <span class="font-bold text-xl">{$gameState.word}</span>
+						</div>
+						<div class="mb-5">
+							{#if $gameState.winner === $player.username}
+								🏆 Bravo ! vous être le vainqueur !
+							{:else}
+								Perdu ! <span class="font-bold">{$gameState.winner}</span> remporte la partie !
+							{/if}
+						</div>
+					</div>
+				{/if}
 			{/if}
-			{#if $player.owner && $gameState.state === 'waiting'}
-				<button
-					on:click="{startGame}"
-					class="mb-8 bg-m-blue hover:bg-m-red text-white hover:text-black transition-colors font-bold py-2 px-4 rounded"
-					>Démarrer la partie</button
-				>
-			{/if}
-		{/if}
-		<Game word="{$gameState.word}" state="{$gameState.state}" on:addWord="{onAddWord}" />
+		</div>
+
+		<Game
+			word="{$gameState.word}"
+			state="{$gameState.state}"
+			on:win="{onWin}"
+			on:lose="{onLose}"
+			on:addWord="{onAddWord}"
+		/>
 	</div>
 	<div class="battle-grid-right">
 		{#if opponents.length}
@@ -126,10 +189,11 @@
 						opponent="{true}"
 						opponentName="{opponent.username}"
 						inputWords="{opponent.words}"
+						on:win="{onOpponentWin}"
 					/>
 				</div>
 			{/each}
-		{:else}
+		{:else if $gameState.state === 'waiting'}
 			<div class="text-xl mx-auto">En attente d'aversaires...</div>
 		{/if}
 	</div>

@@ -28,3 +28,18 @@ body {
 .color-change-1 {
     animation: color-change-1 3s step-end infinite alternate both;
 }
+
+@keyframes text-pop-up-top {
+    0% {
+        transform: translateY(0);
+        transform-origin: center;
+    }
+    100% {
+        transform: translateY(-3px);
+        transform-origin: center;
+    }
+}
+
+.text-pop-up-top {
+    animation: text-pop-up-top 0.25s ease-in-out alternate-reverse ;
+}

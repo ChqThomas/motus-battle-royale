@@ -1,4 +1,4 @@
-import { readable, Updater, writable } from 'svelte/store';
+import { readable, writable } from 'svelte/store';
 import type { Readable, Writable } from 'svelte/store';
 import { io } from 'socket.io-client';
 import type { Socket } from 'socket.io-client';
