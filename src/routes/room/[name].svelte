@@ -40,11 +40,14 @@
 	let sounds = [];
 
 	let username = null;
+	let gameComponent: Game;
+	let opponentGameComponents: Game[] = [];
 
 	let opponents;
 
 	let opponentHeight = 0;
 	let opponentScale = 0;
+	let prevGameState = $gameState;
 
 	$: {
 		$player = _.find($gameState.players, { username });
@@ -76,6 +79,15 @@
 
 			$ws.on('update-game-state', (state: GameState) => {
 				$gameState = { ...$gameState, ...state };
+
+				if ($gameState.state !== prevGameState.state && $gameState.state === 'waiting') {
+					gameComponent.reset();
+					for (const opponent of opponentGameComponents) {
+						opponent.reset();
+					}
+				}
+
+				prevGameState = $gameState;
 			});
 		});
 
@@ -98,6 +110,10 @@
 		$ws.emit('start-game');
 	}
 
+	function resetGame() {
+		$ws.emit('reset-game');
+	}
+
 	function onWin() {
 		sounds = ['winner'];
 	}
@@ -115,7 +131,7 @@
 
 <div class="battle-grid">
 	<div class="battle-grid-left">
-		<div class="h-[120px]">
+		<div class="h-[150px]">
 			{#if $player}
 				{#if $gameState.state === 'waiting'}
 					{#if $player.owner}
@@ -167,12 +183,21 @@
 								Perdu ! <span class="font-bold">{$gameState.winner}</span> remporte la partie !
 							{/if}
 						</div>
+						<div>
+							<button
+								in:blur
+								on:click="{resetGame}"
+								class="mb-8 bg-m-blue hover:bg-m-red text-white hover:text-black transition-colors font-bold py-2 px-4 rounded"
+								>Relancer une partie</button
+							>
+						</div>
 					</div>
 				{/if}
 			{/if}
 		</div>
 
 		<Game
+			bind:this="{gameComponent}"
 			word="{$gameState.word}"
 			state="{$gameState.state}"
 			on:win="{onWin}"
@@ -185,6 +210,7 @@
 			{#each opponents as opponent, i}
 				<div style="height: {opponentHeight}px; transform: scale({opponentScale}); grid-row: {opponent.row}">
 					<Game
+						bind:this="{opponentGameComponents[i]}"
 						word="{$gameState.word}"
 						opponent="{true}"
 						opponentName="{opponent.username}"

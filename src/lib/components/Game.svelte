@@ -96,6 +96,14 @@
 
 		inputWordsKeyboard = inputWords;
 	}
+
+	export function reset(): void {
+		inputWords = [];
+		inputWordsKeyboard = [];
+		displayed = '';
+		currentWordInput = '';
+		locked = true;
+	}
 </script>
 
 <svelte:window on:keydown="{handleKeydown}" />

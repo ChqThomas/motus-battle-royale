@@ -119,6 +119,20 @@ class RoomManager {
 		});
 	}
 
+	public async resetGame(room: Room) {
+		console.log('reset game', room.name);
+		room.state = 'waiting';
+		room.word = '';
+		room.words = [];
+		room.winner = null;
+		this.io.to(room.name).emit('update-game-state', {
+			state: room.state,
+			word: '',
+			opponentWords: [],
+			winner: null,
+		});
+	}
+
 	public addWord(socket: Socket, word: string) {
 		console.log('new word', socket.id, word);
 		socket.joined.words.push({
@@ -165,6 +179,10 @@ export default async function initWebsockets(io: Server): Promise<void> {
 
 		socket.on('start-game', () => {
 			manager.startGame(socket.joined);
+		});
+
+		socket.on('reset-game', () => {
+			manager.resetGame(socket.joined);
 		});
 	});
 	setInterval(() => io.emit('time', new Date().toTimeString()), 1000);

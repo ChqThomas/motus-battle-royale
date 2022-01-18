@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { browser } from '$app/env';
-	import { afterUpdate, onMount } from 'svelte';
+	import { afterUpdate } from 'svelte';
 	import { volume } from '$lib/stores';
 
 	let good, bad, wrong, winner, loser, bouleNoire;
@@ -8,7 +8,6 @@
 	export let sounds = [];
 
 	async function play(sounds) {
-		console.log(sounds);
 		let playlist: HTMLAudioElement[] = [];
 		sounds.forEach((item) => {
 			switch (item) {
