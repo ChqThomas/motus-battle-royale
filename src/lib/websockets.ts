@@ -1,6 +1,6 @@
 import type { Server, Socket as IoSocket } from 'socket.io';
 import _ from 'lodash';
-import words from './words';
+import words from './wordsClean';
 import Player from './game/Player';
 import type { RoomState } from '../global';
 
