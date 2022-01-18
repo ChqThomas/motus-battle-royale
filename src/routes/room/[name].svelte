@@ -183,14 +183,16 @@
 								Perdu ! <span class="font-bold">{$gameState.winner}</span> remporte la partie !
 							{/if}
 						</div>
-						<div>
-							<button
-								in:blur
-								on:click="{resetGame}"
-								class="mb-8 bg-m-blue hover:bg-m-red text-white hover:text-black transition-colors font-bold py-2 px-4 rounded"
-								>Relancer une partie</button
-							>
-						</div>
+						{#if $player.owner}
+							<div>
+								<button
+									in:blur
+									on:click="{resetGame}"
+									class="mb-8 bg-m-blue hover:bg-m-red text-white hover:text-black transition-colors font-bold py-2 px-4 rounded"
+									>Relancer une partie</button
+								>
+							</div>
+						{/if}
 					</div>
 				{/if}
 			{/if}
