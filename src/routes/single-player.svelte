@@ -26,8 +26,6 @@
 
 	export let word;
 
-	word = 'BABOUINS';
-
 	let sounds = [];
 
 	function onAddWord(event) {
