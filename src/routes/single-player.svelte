@@ -22,22 +22,20 @@
 
 <script lang="ts">
 	import Game from '$lib/components/Game.svelte';
-	import Soundboard from '$lib/components/Soundboard.svelte';
+	import { soundboard } from '$lib/stores';
 
 	export let word;
 
-	let sounds = [];
-
 	function onAddWord(event) {
-		sounds = event.detail.statuses;
+		$soundboard.play(event.detail.statuses);
 	}
 
 	function onWin() {
-		sounds = ['winner'];
+		$soundboard.play(['winner']);
 	}
 
 	function onLose() {
-		sounds = ['loser'];
+		$soundboard.play(['loser']);
 	}
 </script>
 
@@ -46,5 +44,3 @@
 		<Game word="{word}" on:addWord="{onAddWord}" on:win="{onWin}" on:lose="{onLose}" opponent="{false}" />
 	</div>
 </main>
-
-<Soundboard sounds="{sounds}" />

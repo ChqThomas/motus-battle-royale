@@ -25,19 +25,16 @@
 </style>
 
 <script lang="ts">
-	import { ws, gameState, player } from '$lib/stores';
+	import { ws, gameState, player, soundboard } from '$lib/stores';
 	import { page } from '$app/stores';
 	import { onMount, onDestroy } from 'svelte';
 	import { blur } from 'svelte/transition';
 
 	import Countdown from '$lib/components/Countdown.svelte';
 	import Game from '$lib/components/Game.svelte';
-	import SoundBoard from '$lib/components/Soundboard.svelte';
 	import type { GameState } from '../../global';
 	import { browser } from '$app/env';
 	import _ from 'lodash';
-
-	let sounds = [];
 
 	let username = null;
 	let gameComponent: Game;
@@ -103,7 +100,7 @@
 
 	function onAddWord(event) {
 		$ws.emit('new-word', { word: event.detail.word });
-		sounds = event.detail.statuses;
+		$soundboard.play(event.detail.statuses);
 	}
 
 	function startGame() {
@@ -115,19 +112,17 @@
 	}
 
 	function onWin() {
-		sounds = ['winner'];
+		$soundboard.play(['winner']);
 	}
 
 	function onLose() {
-		sounds = ['loser'];
+		$soundboard.play(['loser']);
 	}
 
 	function onOpponentWin() {
-		sounds = ['bouleNoire'];
+		$soundboard.play(['bouleNoire']);
 	}
 </script>
-
-<SoundBoard sounds="{sounds}" />
 
 <div class="battle-grid">
 	<div class="battle-grid-left">

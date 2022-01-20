@@ -1,7 +1,8 @@
 <script lang="ts">
 	import '../app.css';
 	import AnimatedTitle from '$lib/components/AnimatedTitle.svelte';
-	import { volume, gameState, player } from '$lib/stores';
+	import Soundboard from '$lib/components/Soundboard.svelte';
+	import { volume, gameState, player, soundboard } from '$lib/stores';
 	import { page } from '$app/stores';
 </script>
 
@@ -79,3 +80,5 @@
 		</div>
 	</div>
 </div>
+
+<Soundboard bind:this="{$soundboard}" />
