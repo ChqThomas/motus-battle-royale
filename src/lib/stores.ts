@@ -2,9 +2,10 @@ import { readable, writable } from 'svelte/store';
 import type { Readable, Writable } from 'svelte/store';
 import { io } from 'socket.io-client';
 import type { Socket } from 'socket.io-client';
-import type { GameState } from '../global';
 import type Player from '$lib/game/Player';
 import type { SvelteComponent } from 'svelte';
+import type { ServerToClientEvents, ClientToServerEvents } from '$lib/websockets';
+import type { GameState } from '$lib/types';
 
 export interface WritableResetable<T> extends Writable<T> {
 	reset(): void;
@@ -16,7 +17,7 @@ function createGameState() {
 		players: [],
 		winner: null,
 		state: 'waiting',
-		opponentWords: [],
+		playerWords: [],
 	};
 	const { subscribe, set, update } = writable(defaultState);
 
@@ -28,7 +29,7 @@ function createGameState() {
 	};
 }
 
-export const ws: Readable<Socket> = readable(
+export const ws: Readable<Socket<ServerToClientEvents, ClientToServerEvents>> = readable(
 	io({
 		autoConnect: false,
 	}),

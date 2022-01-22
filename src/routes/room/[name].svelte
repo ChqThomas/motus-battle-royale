@@ -32,7 +32,7 @@
 
 	import Countdown from '$lib/components/Countdown.svelte';
 	import Game from '$lib/components/Game.svelte';
-	import type { GameState } from '../../global';
+	import type { GameState } from '$lib/types';
 	import { browser } from '$app/env';
 	import _ from 'lodash';
 
@@ -51,7 +51,7 @@
 		opponents = $gameState.players.filter((p) => p.username !== username);
 		opponents.forEach((opponent, i) => {
 			opponent.words = _.map(
-				$gameState.opponentWords.filter((ow) => ow.player === opponent.username),
+				$gameState.playerWords.filter((ow) => ow.player === opponent.username),
 				'word',
 			);
 			opponent.row = (i + 1) % 6;
@@ -69,27 +69,27 @@
 		$ws.connect();
 		$ws.on('connect', () => {
 			$ws.emit('join-request', { room: $page.params.name });
-
-			$ws.on('set-user', (player) => {
-				username = player.username;
-			});
-
-			$ws.on('update-game-state', (state: GameState) => {
-				$gameState = { ...$gameState, ...state };
-
-				if ($gameState.state !== prevGameState.state && $gameState.state === 'waiting') {
-					gameComponent.reset();
-					for (const opponent of opponentGameComponents) {
-						opponent.reset();
-					}
-				}
-
-				prevGameState = $gameState;
-			});
 		});
 
 		$ws.on('disconnect', () => {
 			$ws.removeAllListeners();
+		});
+
+		$ws.on('set-user', (player) => {
+			username = player.username;
+		});
+
+		$ws.on('update-game-state', (state: GameState) => {
+			$gameState = { ...$gameState, ...state };
+
+			if ($gameState.state !== prevGameState.state && $gameState.state === 'waiting') {
+				gameComponent.reset();
+				for (const opponent of opponentGameComponents) {
+					opponent.reset();
+				}
+			}
+
+			prevGameState = $gameState;
 		});
 	});
 
@@ -172,10 +172,10 @@
 							Partie terminée ! Le mot était <span class="font-bold text-xl">{$gameState.word}</span>
 						</div>
 						<div class="mb-5">
-							{#if $gameState.winner === $player.username}
+							{#if $gameState.winner.username === $player.username}
 								🏆 Bravo ! vous être le vainqueur !
 							{:else}
-								Perdu ! <span class="font-bold">{$gameState.winner}</span> remporte la partie !
+								Perdu ! <span class="font-bold">{$gameState.winner.username}</span> remporte la partie !
 							{/if}
 						</div>
 						{#if $player.owner}

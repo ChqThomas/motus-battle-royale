@@ -4,7 +4,7 @@
 	import { createEventDispatcher } from 'svelte';
 	import { blur } from 'svelte/transition';
 	import { getWordStatuses } from '$lib/motus';
-	import type { RoomState } from '../../global';
+	import type { RoomState } from '$lib/types';
 	const dispatch = createEventDispatcher();
 
 	export let word = 'MOTUSVS';
