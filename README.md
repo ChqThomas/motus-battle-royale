@@ -18,7 +18,7 @@ https://motus-battle-royale.herokuapp.com/
 Clone the project
 
 ```bash
-  git clone https://github.com/Chokapix/motus-battle-royale.git
+  git clone https://github.com/ChqThomas/motus-battle-royale.git
 ```
 
 Go to the project directory

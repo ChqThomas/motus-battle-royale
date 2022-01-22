@@ -85,7 +85,7 @@
 					></path>
 				</svg>
 			</a>
-			<a target="_blank" href="https://github.com/Chokapix/motus-battle-royale" class="mx-2 w-6">
+			<a target="_blank" href="https://github.com/ChqThomas/motus-battle-royale" class="mx-2 w-6">
 				<svg
 					class="fill-current cursor-pointer text-white hover:text-gray-300"
 					width="100%"
