@@ -45,6 +45,7 @@
 	let opponentHeight = 0;
 	let opponentScale = 0;
 	let prevGameState = $gameState;
+	let invalidWord = null;
 
 	$: {
 		$player = _.find($gameState.players, { id: userId });
@@ -99,8 +100,14 @@
 	});
 
 	function onAddWord(event) {
-		$ws.emit('new-word', { word: event.detail.word });
 		$soundboard.play(event.detail.statuses);
+	}
+
+	async function onInvalidWord(event) {
+		invalidWord = event.detail.word;
+		$soundboard.play(['wrong']);
+		await new Promise((r) => setTimeout(r, 1000));
+		invalidWord = null;
 	}
 
 	function startGame() {
@@ -126,14 +133,14 @@
 
 <div class="battle-grid">
 	<div class="battle-grid-left">
-		<div class="h-[150px]">
+		<div class="h-[150px] mb-3 flex flex-col justify-end">
 			{#if $player}
 				{#if $gameState.state === 'waiting'}
 					{#if $player.owner}
 						<button
 							in:blur
 							on:click="{startGame}"
-							class="mb-8 bg-m-blue hover:bg-m-red text-white hover:text-black transition-colors font-bold py-2 px-4 rounded"
+							class="self-center mb-8 bg-m-blue hover:bg-m-red text-white hover:text-black transition-colors font-bold py-2 px-4 rounded"
 							>Démarrer la partie</button
 						>
 					{:else}
@@ -173,7 +180,7 @@
 						</div>
 						<div class="mb-5">
 							{#if $gameState.winner.username === $player.username}
-								🏆 Bravo ! vous être le vainqueur !
+								🏆 Bravo ! vous êtes le vainqueur !
 							{:else}
 								Perdu ! <span class="font-bold">{$gameState.winner.username}</span> remporte la partie !
 							{/if}
@@ -190,6 +197,13 @@
 						{/if}
 					</div>
 				{/if}
+				{#if $gameState.state === 'started'}
+					{#if invalidWord !== null}
+						<div out:blur class="text-xl"
+							>Le mot <span class="font-bold">{invalidWord}</span> n'existe pas dans notre dictionnaire !</div
+						>
+					{/if}
+				{/if}
 			{/if}
 		</div>
 
@@ -200,6 +214,7 @@
 			on:win="{onWin}"
 			on:lose="{onLose}"
 			on:addWord="{onAddWord}"
+			on:invalidWord="{onInvalidWord}"
 		/>
 	</div>
 	<div class="battle-grid-right">

@@ -15,7 +15,7 @@ export interface ServerToClientEvents {
 export interface ClientToServerEvents {
 	'start-game': () => void;
 	'reset-game': () => void;
-	'new-word': ({ word: any }) => void;
+	'new-word': ({ word: any }, callback: ({ valid: boolean }) => void) => void;
 	'join-request': ({ room: string }) => void;
 	'set-username': (username: string) => void;
 }
@@ -59,8 +59,14 @@ export default async function initWebsockets(io: Server): Promise<void> {
 			manager.addToRoom(socket, room);
 		});
 
-		socket.on('new-word', ({ word }) => {
-			socket.data.joined.addWord(socket, word);
+		socket.on('new-word', ({ word }, callback) => {
+			const valid = manager.checkWord(word);
+			if (valid) {
+				socket.data.joined.addWord(socket, word);
+			}
+			callback({
+				valid,
+			});
 		});
 
 		socket.on('start-game', () => {

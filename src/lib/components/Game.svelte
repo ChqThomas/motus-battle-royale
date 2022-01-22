@@ -5,6 +5,7 @@
 	import { blur } from 'svelte/transition';
 	import { getWordStatuses } from '$lib/motus';
 	import type { RoomState } from '$lib/types';
+	import { ws } from '$lib/stores';
 	const dispatch = createEventDispatcher();
 
 	export let word = 'MOTUSVS';
@@ -58,15 +59,23 @@
 
 	function addWord() {
 		if (currentWord.length === maxLetter && inputWords.length < maxGuesses) {
-			locked = true;
-			inputWords = [...inputWords, currentWord];
-			let wordStatuses = getWordStatuses(word, currentWord);
-			dispatch('addWord', {
-				word: currentWord,
-				statuses: wordStatuses,
+			$ws.emit('new-word', { word: currentWord }, ({ valid }) => {
+				if (valid) {
+					locked = true;
+					inputWords = [...inputWords, currentWord];
+					let wordStatuses = getWordStatuses(word, currentWord);
+					dispatch('addWord', {
+						word: currentWord,
+						statuses: wordStatuses,
+					});
+					currentWordInput = '';
+					displayed = '';
+				} else {
+					dispatch('invalidWord', {
+						word: currentWord,
+					});
+				}
 			});
-			currentWordInput = '';
-			displayed = '';
 		}
 	}
 

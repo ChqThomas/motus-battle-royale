@@ -1,8 +1,27 @@
 import type { Socket } from '$lib/websockets';
 import _ from 'lodash';
 import words from '$lib/wordsClean';
+import allWords from '$lib/words';
 import Room from '$lib/game/Room';
 import type { Server } from '$lib/websockets';
+
+const dictionnary = {};
+
+allWords.forEach((word) => {
+	const letter = word[0];
+	const length = word.length;
+	if (!(letter in dictionnary)) {
+		dictionnary[letter] = {};
+	}
+	if (!(length in dictionnary[letter])) {
+		dictionnary[letter][length] = [];
+	}
+	dictionnary[letter][length].push(word);
+});
+
+const proposableWords = words.filter((w) => {
+	return w.length >= 5 && w.length <= 9;
+});
 
 export default class Manager {
 	public rooms: Room[] = [];
@@ -22,7 +41,11 @@ export default class Manager {
 	}
 
 	public getRandomWord(): string {
-		return _.sample(words);
+		return _.sample(proposableWords);
+	}
+
+	public checkWord(word: string): string {
+		return dictionnary[word[0]][word.length].includes(word);
 	}
 
 	public getRoom(name: string): Room {
