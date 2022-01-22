@@ -33,21 +33,19 @@ export default async function initWebsockets(io: Server): Promise<void> {
 	const manager = new Manager(io);
 
 	io.on('connection', (socket: Socket) => {
-
-		console.log(socket.handshake.query.username);
-
 		socket.data = {
-			player: new Player(socket.id, typeof socket.handshake.query.username === "string" ? socket.handshake.query.username : null),
+			player: new Player(
+				socket.id,
+				typeof socket.handshake.query.username === 'string' ? socket.handshake.query.username : null,
+			),
 		};
-
-		console.log(socket.data);
 
 		socket.emit('set-user', socket.data.player);
 
 		socket.on('set-username', (username) => {
-			socket.data.player.username = username;
+			socket.data.player.username = username.slice(0, 30);
 			socket.data.joined.updateClientGameState();
-			socket.emit("set-user", socket.data.player);
+			socket.emit('set-user', socket.data.player);
 		});
 
 		socket.on('disconnect', () => {

@@ -46,7 +46,15 @@
 					</div>
 				</div>
 			{/if}
-			<input id="volume" class="ml-4 mr-4" bind:value="{$volume}" type="range" min="0" max="100" />
+			<input
+				id="volume"
+				class="ml-4 mr-4"
+				bind:value="{$volume}"
+				type="range"
+				min="0"
+				max="100"
+				on:change="{() => localStorage.setItem('volume', $volume)}"
+			/>
 			<div class="w-[20px]">
 				<i
 					class="fa"

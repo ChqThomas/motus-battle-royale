@@ -28,6 +28,7 @@
 						id="username"
 						type="text"
 						placeholder="Username"
+						maxlength="30"
 						bind:value="{newUsername}"
 						bind:this="{usernameInput}"
 					/>

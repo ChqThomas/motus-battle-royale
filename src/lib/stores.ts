@@ -30,17 +30,23 @@ function createGameState() {
 }
 
 const socketQuery: { username?: string } = {};
-if (typeof localStorage !== 'undefined' && 'username' in localStorage ) {
+if (typeof localStorage !== 'undefined' && 'username' in localStorage) {
 	socketQuery.username = localStorage.username;
 }
 
 export const ws: Readable<Socket> = readable(
 	io({
 		autoConnect: false,
-		query: socketQuery
+		query: socketQuery,
 	}),
 );
-export const volume: Writable<number> = writable(20);
+
+let volumeValue = 20;
+if (typeof localStorage !== 'undefined' && 'volume' in localStorage) {
+	volumeValue = localStorage.volume;
+}
+
+export const volume: Writable<number> = writable(volumeValue);
 export const soundboard: Writable<typeof SvelteComponent> = writable(null);
 export const player: Writable<Player> = writable({
 	id: null,
