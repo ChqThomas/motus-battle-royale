@@ -43,3 +43,11 @@ body {
 .text-pop-up-top {
     animation: text-pop-up-top 0.25s ease-in-out alternate-reverse ;
 }
+
+.window .content {
+    padding: 0 !important;
+}
+
+.window .close {
+    display: none !important;
+}

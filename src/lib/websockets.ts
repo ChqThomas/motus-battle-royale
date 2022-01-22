@@ -17,6 +17,7 @@ export interface ClientToServerEvents {
 	'reset-game': () => void;
 	'new-word': ({ word: any }) => void;
 	'join-request': ({ room: string }) => void;
+	'set-username': (username: string) => void;
 }
 
 export interface InterServerEvents {
@@ -31,12 +32,23 @@ export interface SocketData {
 export default async function initWebsockets(io: Server): Promise<void> {
 	const manager = new Manager(io);
 
-	io.on('connection', (socket) => {
+	io.on('connection', (socket: Socket) => {
+
+		console.log(socket.handshake.query.username);
+
 		socket.data = {
-			player: new Player(),
+			player: new Player(socket.id, typeof socket.handshake.query.username === "string" ? socket.handshake.query.username : null),
 		};
 
+		console.log(socket.data);
+
 		socket.emit('set-user', socket.data.player);
+
+		socket.on('set-username', (username) => {
+			socket.data.player.username = username;
+			socket.data.joined.updateClientGameState();
+			socket.emit("set-user", socket.data.player);
+		});
 
 		socket.on('disconnect', () => {
 			manager.disconnect(socket);

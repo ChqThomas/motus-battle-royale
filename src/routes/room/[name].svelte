@@ -36,7 +36,7 @@
 	import { browser } from '$app/env';
 	import _ from 'lodash';
 
-	let username = null;
+	let userId = null;
 	let gameComponent: Game;
 	let opponentGameComponents: Game[] = [];
 
@@ -47,8 +47,8 @@
 	let prevGameState = $gameState;
 
 	$: {
-		$player = _.find($gameState.players, { username });
-		opponents = $gameState.players.filter((p) => p.username !== username);
+		$player = _.find($gameState.players, { id: userId });
+		opponents = $gameState.players.filter((p) => p.id !== userId);
 		opponents.forEach((opponent, i) => {
 			opponent.words = _.map(
 				$gameState.playerWords.filter((ow) => ow.player === opponent.username),
@@ -76,7 +76,7 @@
 		});
 
 		$ws.on('set-user', (player) => {
-			username = player.username;
+			userId = player.id;
 		});
 
 		$ws.on('update-game-state', (state: GameState) => {
@@ -205,16 +205,20 @@
 	<div class="battle-grid-right">
 		{#if opponents.length}
 			{#each opponents as opponent, i}
-				<div style="height: {opponentHeight}px; transform: scale({opponentScale}); grid-row: {opponent.row}">
-					<Game
-						bind:this="{opponentGameComponents[i]}"
-						word="{$gameState.word}"
-						opponent="{true}"
-						opponentName="{opponent.username}"
-						inputWords="{opponent.words}"
-						on:win="{onOpponentWin}"
-					/>
-				</div>
+				{#key opponent.id}
+					<div
+						style="height: {opponentHeight}px; transform: scale({opponentScale}); grid-row: {opponent.row}"
+					>
+						<Game
+							bind:this="{opponentGameComponents[i]}"
+							word="{$gameState.word}"
+							opponent="{true}"
+							opponentName="{opponent.username}"
+							inputWords="{opponent.words}"
+							on:win="{onOpponentWin}"
+						/>
+					</div>
+				{/key}
 			{/each}
 		{:else if $gameState.state === 'waiting'}
 			<div class="text-xl mx-auto">En attente d'aversaires...</div>

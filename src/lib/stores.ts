@@ -29,16 +29,25 @@ function createGameState() {
 	};
 }
 
-export const ws: Readable<Socket<ServerToClientEvents, ClientToServerEvents>> = readable(
+const socketQuery: { username?: string } = {};
+if (typeof localStorage !== 'undefined' && 'username' in localStorage ) {
+	socketQuery.username = localStorage.username;
+}
+
+export const ws: Readable<Socket> = readable(
 	io({
 		autoConnect: false,
+		query: socketQuery
 	}),
 );
 export const volume: Writable<number> = writable(20);
 export const soundboard: Writable<typeof SvelteComponent> = writable(null);
 export const player: Writable<Player> = writable({
+	id: null,
 	username: '',
 	owner: false,
 });
 
 export const gameState: WritableResetable<GameState> = createGameState();
+export const modal: Writable<any> = writable(null);
+

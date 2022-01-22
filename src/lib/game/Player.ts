@@ -7,9 +7,11 @@ const customConfig: Config = {
 };
 
 export default class Player {
+	public id: string;
 	public username: string;
 	public owner: boolean;
-	constructor() {
-		this.username = uniqueNamesGenerator(customConfig);
+	constructor(id: string, username?: string) {
+		this.id = id;
+		this.username = username || uniqueNamesGenerator(customConfig);
 	}
 }

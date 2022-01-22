@@ -1,9 +1,20 @@
+<script context="module">
+	export const ssr = false;
+</script>
+
 <script lang="ts">
 	import '../app.css';
+	import '@fortawesome/fontawesome-free/css/all.css';
 	import AnimatedTitle from '$lib/components/AnimatedTitle.svelte';
 	import Soundboard from '$lib/components/Soundboard.svelte';
-	import { volume, gameState, player, soundboard } from '$lib/stores';
+	import { volume, gameState, player, soundboard, modal } from '$lib/stores';
 	import { page } from '$app/stores';
+	import { Modal, bind } from 'svelte-simple-modal';
+	import UserModal from '$lib/components/UserModal.svelte';
+
+	const editUser = () => {
+		modal.set(bind(UserModal));
+	};
 </script>
 
 <nav class="flex items-center justify-between flex-wrap bg-gray-900 p-6 w-full z-10 h-[80px] fixed top-0">
@@ -28,12 +39,21 @@
 	<div class="flex-grow flex items-center" id="nav-content">
 		<div class="lg:flex justify-end flex-1 items-center">
 			{#if $page.url.pathname.includes('/room/') && $player}
-				<div class="mr-5">
-					Username: <span class="font-bold">{$player.username}</span>
+				<div class="mr-5 flex justify-end flex-1 items-center cursor-pointer hover:text-m-yellow">
+					<i class="fa fa-user"></i>
+					<div class="ml-2" on:click="{editUser}">
+						<span class="font-bold">{$player.username}</span>
+					</div>
 				</div>
 			{/if}
-			<input id="volume" class="mr-4" bind:value="{$volume}" type="range" min="0" max="100" />
-			<label for="volume">Volume {$volume}</label>
+			<input id="volume" class="ml-4 mr-4" bind:value="{$volume}" type="range" min="0" max="100" />
+			<div class="w-[20px]">
+				<i
+					class="fa"
+					class:fa-volume-mute="{$volume === 0}"
+					class:fa-volume-down="{$volume < 50}"
+					class:fa-volume-up="{$volume >= 50}"></i>
+			</div>
 		</div>
 	</div>
 </nav>
@@ -82,3 +102,4 @@
 </div>
 
 <Soundboard bind:this="{$soundboard}" />
+<Modal show="{$modal}" />

@@ -76,6 +76,16 @@ export default class Room {
 		this.manager.io.to(this.name).emit('update-game-state', gameState);
 	}
 
+	public updateClientGameState(): void {
+		this.manager.io.to(this.name).emit('update-game-state', {
+			word: this.word,
+			state: this.state,
+			playerWords: this.playerWords,
+			winner: this.winner,
+			players: this.sockets.map((socket) => socket.data.player),
+		});
+	}
+
 	public async startGame(): Promise<void> {
 		console.log('start game', this.name);
 		this.updateGameState({
