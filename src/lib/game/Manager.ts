@@ -20,7 +20,7 @@ allWords.forEach((word) => {
 });
 
 const proposableWords = words.filter((w) => {
-	return w.length >= 5 && w.length <= 9;
+	return w.length >= 5 && w.length <= 9 && allWords.includes(w);
 });
 
 export default class Manager {
