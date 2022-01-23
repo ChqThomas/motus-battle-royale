@@ -13,6 +13,7 @@
 	}
 
 	.battle-grid-right {
+		margin-top: 90px;
 		display: grid;
 		grid-template-columns: auto;
 	}
