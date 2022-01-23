@@ -15,6 +15,7 @@ export interface ServerToClientEvents {
 export interface ClientToServerEvents {
 	'start-game': () => void;
 	'reset-game': () => void;
+	'give-up': () => void;
 	'new-word': ({ word: any }, callback: ({ valid: boolean }) => void) => void;
 	'join-request': ({ room: string }) => void;
 	'set-username': (username: string) => void;
@@ -73,6 +74,10 @@ export default async function initWebsockets(io: Server): Promise<void> {
 
 		socket.on('reset-game', () => {
 			socket.data.joined.resetGame();
+		});
+
+		socket.on('give-up', () => {
+			socket.data.player.giveUp();
 		});
 	});
 }

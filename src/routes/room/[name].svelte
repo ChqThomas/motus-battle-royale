@@ -51,10 +51,6 @@
 		$player = _.find($gameState.players, { id: userId });
 		opponents = $gameState.players.filter((p) => p.id !== userId);
 		opponents.forEach((opponent, i) => {
-			opponent.words = _.map(
-				$gameState.playerWords.filter((ow) => ow.player === opponent.username),
-				'word',
-			);
 			opponent.row = (i + 1) % 6;
 		});
 		if (browser && document.querySelector('.battle-grid')) {
@@ -118,6 +114,10 @@
 		$ws.emit('reset-game');
 	}
 
+	function giveUp() {
+		$ws.emit('give-up');
+	}
+
 	function onWin() {
 		$soundboard.play(['winner']);
 	}
@@ -140,14 +140,14 @@
 						<button
 							in:blur
 							on:click="{startGame}"
-							class="self-center mb-8 bg-m-blue hover:bg-m-red text-white hover:text-black transition-colors font-bold py-2 px-4 rounded"
+							class="self-center bg-m-blue hover:bg-m-red text-white hover:text-black transition-colors font-bold py-2 px-4 rounded"
 							>Démarrer la partie</button
 						>
 					{:else}
 						<button
 							in:blur
 							type="button"
-							class="inline-flex items-center px-4 py-2 font-semibold leading-6 text-sm shadow rounded-md text-white bg-m-blue hover:bg-m-blue transition ease-in-out duration-150 cursor-not-allowed"
+							class="self-center inline-flex items-center px-4 py-2 font-semibold leading-6 text-sm shadow rounded-md text-white bg-m-blue hover:bg-m-blue transition ease-in-out duration-150 cursor-not-allowed"
 							disabled=""
 						>
 							<svg
@@ -178,19 +178,24 @@
 						<div class="mb-5">
 							Partie terminée ! Le mot était <span class="font-bold text-xl">{$gameState.word}</span>
 						</div>
-						<div class="mb-5">
-							{#if $gameState.winner.username === $player.username}
-								🏆 Bravo ! vous êtes le vainqueur !
-							{:else}
-								Perdu ! <span class="font-bold">{$gameState.winner.username}</span> remporte la partie !
-							{/if}
-						</div>
+						{#if $gameState.winner}
+							<div class="mb-5">
+								{#if $gameState.winner.username === $player.username}
+									🏆 Bravo ! vous êtes le vainqueur !
+								{:else}
+									Perdu ! <span class="font-bold">{$gameState.winner.username}</span> remporte la partie
+									!
+								{/if}
+							</div>
+						{:else}
+							<div class="mb-5">Il n'y a pas de gagnant !</div>
+						{/if}
 						{#if $player.owner}
 							<div>
 								<button
 									in:blur
 									on:click="{resetGame}"
-									class="mb-8 bg-m-blue hover:bg-m-red text-white hover:text-black transition-colors font-bold py-2 px-4 rounded"
+									class="bg-m-blue hover:bg-m-red text-white hover:text-black transition-colors font-bold py-2 px-4 rounded"
 									>Relancer une partie</button
 								>
 							</div>

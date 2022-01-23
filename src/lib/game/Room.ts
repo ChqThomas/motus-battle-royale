@@ -6,11 +6,6 @@ import _ from 'lodash';
 
 export type RoomState = 'waiting' | 'starting' | 'started' | 'finished';
 
-export type PlayerWord = {
-	player: string;
-	word: string;
-};
-
 export default class Room {
 	public manager: Manager;
 	public state: RoomState;
@@ -18,7 +13,6 @@ export default class Room {
 	public word: string;
 	public sockets: Socket[];
 	public players: Player[];
-	public playerWords: PlayerWord[];
 	public winner: Player;
 
 	constructor(manager: Manager, name: string) {
@@ -27,7 +21,6 @@ export default class Room {
 		this.state = 'waiting';
 		this.sockets = [];
 		this.players = [];
-		this.playerWords = [];
 	}
 
 	public addPlayer(socket: Socket): boolean {
@@ -80,9 +73,8 @@ export default class Room {
 		this.manager.io.to(this.name).emit('update-game-state', {
 			word: this.word,
 			state: this.state,
-			playerWords: this.playerWords,
 			winner: this.winner,
-			players: this.sockets.map((socket) => socket.data.player),
+			players: this.players,
 		});
 	}
 
@@ -101,10 +93,11 @@ export default class Room {
 
 	public async resetGame(): Promise<void> {
 		console.log('reset game', this.name);
+		this.players.forEach((p) => p.reset());
 		this.updateGameState({
 			state: 'waiting',
 			word: '',
-			playerWords: [],
+			players: this.players,
 			winner: null,
 		});
 	}
@@ -112,20 +105,28 @@ export default class Room {
 	public addWord(socket: Socket, word: string): void {
 		console.log('new word', socket.id, word);
 
-		socket.data.joined.playerWords.push({
-			player: socket.data.player.username,
-			word,
-		});
+		socket.data.player.words.push(word);
 
-		this.updateGameState({
-			playerWords: socket.data.joined.playerWords,
-		});
+		this.updateClientGameState();
 
 		if (word === socket.data.joined.word) {
 			this.updateGameState({
 				state: 'finished',
 				winner: socket.data.player,
 			});
+		} else if (this.isFinished()) {
+			console.log('FINISHED tous nul');
+			this.updateGameState({
+				state: 'finished',
+				winner: null,
+			});
 		}
+	}
+
+	public isFinished(): boolean {
+		return this.players.every((p) => {
+			console.log(p.username, p.giveup, p.words.length);
+			return p.giveup === true || p.words.length >= 6;
+		});
 	}
 }
