@@ -1,20 +1,22 @@
 <script lang="ts">
 	import Word from '$lib/components/Word.svelte';
 	import Keyboard from '$lib/components/Keyboard.svelte';
+	import HealthBar from '$lib/components/HealthBar.svelte';
 	import { createEventDispatcher } from 'svelte';
 	import { blur } from 'svelte/transition';
 	import { getWordStatuses } from '$lib/motus';
-	import type { RoomState } from '$lib/types';
 	import { ws } from '$lib/stores';
+	import type { RoomOption, RoomState } from '$lib/game/Room';
 	const dispatch = createEventDispatcher();
 
 	export let word = 'MOTUSVS';
 	export let opponent = false;
-	export let opponentName = '';
+	export let player;
+	export let options: RoomOption;
 	export let state: RoomState | null = null;
 
 	let maxLetter = word.length || 7;
-	const maxGuesses = 6;
+	let maxGuesses = 6;
 
 	export let inputWords = [];
 	let inputWordsKeyboard = [];
@@ -22,6 +24,7 @@
 	let currentWordInput = '';
 	let displayed = word.length ? word[0] : '';
 	let locked = true;
+	let lose = false;
 	$: currentWord = currentWordInput.toUpperCase();
 
 	function start() {
@@ -31,10 +34,12 @@
 	}
 
 	$: {
+		lose = player && player.health === 0;
+		maxGuesses = options.maxGuesses;
 		if (word.length) {
 			start();
 		}
-		if (state === 'finished') {
+		if (state === 'finished' && !lose) {
 			setTimeout(function () {
 				locked = true;
 			}, maxLetter * 250);
@@ -42,7 +47,7 @@
 	}
 
 	function handleKeydown(event) {
-		if (opponent || locked) {
+		if (opponent || locked || lose) {
 			return false;
 		}
 		let key = event.keyCode;
@@ -118,9 +123,19 @@
 <svelte:window on:keydown="{handleKeydown}" />
 
 {#key 'game'}
-	<div transition:blur class="flex flex-col justify-center items-centers max-w-2xl mx-auto">
-		{#if opponentName}
-			<h1 class="font-bold text-4xl md:text-4xl tracking-tight mb-4 text-white text-center">{opponentName}</h1>
+	<div
+		transition:blur
+		class="flex flex-col justify-center items-centers max-w-2xl mx-auto {lose ? 'game-lose-state' : ''}"
+	>
+		{#if opponent}
+			<h1 class="font-bold text-4xl md:text-4xl tracking-tight mb-4 text-white text-center">
+				{#if options.maxHealth > 1}
+					<span class="text-xl mr-2">
+						<HealthBar options="{options}" player="{player}" />
+					</span>
+				{/if}
+				{player.username}
+			</h1>
 		{/if}
 		<div class="mb-8 prose leading-6 text-gray-100 text-center">
 			<div>
@@ -144,7 +159,14 @@
 			{/if}
 
 			{#if !opponent}
-				<Keyboard words="{inputWordsKeyboard}" requiredWord="{word}" />
+				{#if player && options.maxHealth > 1}
+					<div class="text-xl mt-8">
+						<HealthBar options="{options}" player="{player}" />
+					</div>
+				{/if}
+				<div class="{options.maxHealth > 1 ? 'mt-10' : 'mt-20'}">
+					<Keyboard words="{inputWordsKeyboard}" requiredWord="{word}" />
+				</div>
 			{/if}
 		</div>
 	</div>

@@ -8,6 +8,7 @@
 	}
 
 	.battle-grid-left {
+		margin-top: 90px;
 		align-self: center;
 		@apply border-r-2 border-gray-600;
 	}
@@ -26,7 +27,7 @@
 </style>
 
 <script lang="ts">
-	import { ws, gameState, player, soundboard } from '$lib/stores';
+	import { ws, gameState, player, soundboard, modal } from '$lib/stores';
 	import { page } from '$app/stores';
 	import { onMount, onDestroy } from 'svelte';
 	import { blur } from 'svelte/transition';
@@ -47,6 +48,8 @@
 	let opponentScale = 0;
 	let prevGameState = $gameState;
 	let invalidWord = null;
+	let ended = false;
+	let gridHeight = 0;
 
 	$: {
 		$player = _.find($gameState.players, { id: userId });
@@ -54,10 +57,10 @@
 		opponents.forEach((opponent, i) => {
 			opponent.row = (i + 1) % 6;
 		});
+		ended = $gameState ? $gameState.ended : false;
 		if (browser && document.querySelector('.battle-grid')) {
 			let basicHeight = 450;
 			let opH = (document.body.clientHeight - 100) / Math.min(6, opponents.length);
-			let gridHeight = document.querySelector('.battle-grid').clientHeight;
 			opponentHeight = (gridHeight - 100) / Math.min(6, opponents.length) - 25;
 			opponentScale = Math.min(0.75, opH / basicHeight);
 		}
@@ -66,7 +69,11 @@
 	onMount(() => {
 		$ws.connect();
 		$ws.on('connect', () => {
-			$ws.emit('join-request', { room: $page.params.name });
+			$ws.emit('join-request', { room: $page.params.name }, (response) => {
+				if (response.joined) {
+					$gameState.options = response.options;
+				}
+			});
 		});
 
 		$ws.on('disconnect', () => {
@@ -115,6 +122,10 @@
 		$ws.emit('reset-game');
 	}
 
+	function resetRound() {
+		$ws.emit('reset-round');
+	}
+
 	function giveUp() {
 		$ws.emit('give-up');
 	}
@@ -132,7 +143,7 @@
 	}
 </script>
 
-<div class="battle-grid">
+<div class="battle-grid" bind:clientHeight="{gridHeight}">
 	<div class="battle-grid-left">
 		<div class="h-[150px] mb-3 flex flex-col justify-end">
 			{#if $player}
@@ -165,7 +176,7 @@
 									d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
 								></path>
 							</svg>
-							En attente du lancement de la partie
+							En attente du lancement
 						</button>
 					{/if}
 				{/if}
@@ -177,14 +188,18 @@
 				{#if $gameState.state === 'finished'}
 					<div in:blur="{{ duration: 150, delay: $gameState.word.length * 250 }}">
 						<div class="mb-5">
-							Partie terminée ! Le mot était <span class="font-bold text-xl">{$gameState.word}</span>
+							{ended === true ? 'Partie terminée' : 'Round terminé'} ! Le mot était
+							<span class="font-bold text-xl">{$gameState.word}</span>
 						</div>
 						{#if $gameState.winner}
 							<div class="mb-5">
-								{#if $gameState.winner.username === $player.username}
-									🏆 Bravo ! vous êtes le vainqueur !
+								{#if $gameState.winner.id === $player.id}
+									🏆 Bravo ! vous remportez {$gameState.ended === true ? 'la partie' : 'le round'} !
 								{:else}
-									Perdu ! <span class="font-bold">{$gameState.winner.username}</span> remporte la partie
+									Perdu ! <span class="font-bold">{$gameState.winner.username}</span> remporte {ended ===
+									true
+										? 'la partie'
+										: 'le round'}
 									!
 								{/if}
 							</div>
@@ -199,6 +214,14 @@
 									class="bg-m-blue hover:bg-m-red text-white hover:text-black transition-colors font-bold py-2 px-4 rounded"
 									>Relancer une partie</button
 								>
+								{#if ended === false}
+									<button
+										in:blur
+										on:click="{resetRound}"
+										class="bg-m-blue hover:bg-m-red text-white hover:text-black transition-colors font-bold py-2 px-4 rounded"
+										>Prochain round</button
+									>
+								{/if}
 							</div>
 						{/if}
 					</div>
@@ -217,6 +240,8 @@
 			bind:this="{gameComponent}"
 			word="{$gameState.word}"
 			state="{$gameState.state}"
+			options="{$gameState.options}"
+			player="{$player}"
 			on:win="{onWin}"
 			on:lose="{onLose}"
 			on:addWord="{onAddWord}"
@@ -233,8 +258,9 @@
 						<Game
 							bind:this="{opponentGameComponents[i]}"
 							word="{$gameState.word}"
+							options="{$gameState.options}"
 							opponent="{true}"
-							opponentName="{opponent.username}"
+							player="{opponent}"
 							inputWords="{opponent.words}"
 							on:win="{onOpponentWin}"
 						/>

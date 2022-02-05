@@ -44,7 +44,7 @@ export default class Manager {
 		return _.sample(proposableWords);
 	}
 
-	public checkWord(word: string): string {
+	public checkWord(word: string): boolean {
 		return dictionnary[word[0]][word.length].includes(word);
 	}
 

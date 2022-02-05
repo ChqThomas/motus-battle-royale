@@ -6,6 +6,11 @@ import _ from 'lodash';
 
 export type RoomState = 'waiting' | 'starting' | 'started' | 'finished';
 
+export type RoomOption = {
+	maxHealth: number;
+	maxGuesses: number;
+};
+
 export default class Room {
 	public manager: Manager;
 	public state: RoomState;
@@ -14,6 +19,8 @@ export default class Room {
 	public sockets: Socket[];
 	public players: Player[];
 	public winner: Player;
+	public ended: boolean;
+	public options: RoomOption;
 
 	constructor(manager: Manager, name: string) {
 		this.manager = manager;
@@ -21,6 +28,11 @@ export default class Room {
 		this.state = 'waiting';
 		this.sockets = [];
 		this.players = [];
+		this.ended = false;
+		this.options = {
+			maxHealth: 3,
+			maxGuesses: 6,
+		};
 	}
 
 	public addPlayer(socket: Socket): boolean {
@@ -37,6 +49,7 @@ export default class Room {
 		this.sockets.push(socket);
 		socket.join(this.name);
 		socket.data.joined = this;
+		socket.data.player.setRoom(this.options);
 		console.log('join', socket.id, this.name);
 		console.log('this players', this.name, this.players.length);
 
@@ -61,6 +74,14 @@ export default class Room {
 		}
 	}
 
+	public setOption(options: RoomOption): void {
+		this.options = options;
+		this.players.forEach((p) => {
+			p.setRoom(options);
+		});
+		this.updateClientGameState();
+	}
+
 	public updateGameState(gameState: GameState): void {
 		for (const [key, value] of Object.entries(gameState)) {
 			this[key] = value;
@@ -75,11 +96,11 @@ export default class Room {
 			state: this.state,
 			winner: this.winner,
 			players: this.players,
+			options: this.options,
 		});
 	}
 
 	public async startGame(): Promise<void> {
-		console.log('start game', this.name);
 		this.updateGameState({
 			state: 'starting',
 		});
@@ -92,8 +113,18 @@ export default class Room {
 	}
 
 	public async resetGame(): Promise<void> {
-		console.log('reset game', this.name);
 		this.players.forEach((p) => p.reset());
+		this.updateGameState({
+			state: 'waiting',
+			word: '',
+			players: this.players,
+			winner: null,
+			ended: false,
+		});
+	}
+
+	public async resetRound(): Promise<void> {
+		this.players.forEach((p) => p.resetRound());
 		this.updateGameState({
 			state: 'waiting',
 			word: '',
@@ -110,23 +141,38 @@ export default class Room {
 		this.updateClientGameState();
 
 		if (word === socket.data.joined.word) {
-			this.updateGameState({
-				state: 'finished',
-				winner: socket.data.player,
-			});
+			this.setFinished(socket.data.player);
 		} else if (this.isFinished()) {
-			console.log('FINISHED tous nul');
 			this.updateGameState({
 				state: 'finished',
 				winner: null,
+				ended: this.isEnded(),
 			});
 		}
 	}
 
+	public setFinished(winner?: Player): void {
+		this.players.filter((p) => p !== winner && p.health > 0).forEach((p) => p.health--);
+		console.log('ended', this.isEnded());
+		this.updateGameState({
+			state: 'finished',
+			players: this.players,
+			winner,
+			ended: this.isEnded(),
+		});
+	}
+
 	public isFinished(): boolean {
 		return this.players.every((p) => {
-			console.log(p.username, p.giveup, p.words.length);
-			return p.giveup === true || p.words.length >= 6;
+			return p.giveup === true || p.words.length >= this.options.maxGuesses;
 		});
+	}
+
+	public isEnded(): boolean {
+		return (
+			this.players.filter((p) => {
+				return p.health > 0;
+			}).length <= 1
+		);
 	}
 }

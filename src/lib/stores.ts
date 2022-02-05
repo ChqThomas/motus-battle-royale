@@ -17,7 +17,11 @@ function createGameState() {
 		players: [],
 		winner: null,
 		state: 'waiting',
-		playerWords: [],
+		options: {
+			maxHealth: 3,
+			maxGuesses: 6,
+		},
+		ended: false,
 	};
 	const { subscribe, set, update } = writable(defaultState);
 
@@ -52,8 +56,9 @@ export const player: Writable<Player> = writable({
 	id: null,
 	username: '',
 	owner: false,
+	words: [],
+	health: 3,
 });
 
 export const gameState: WritableResetable<GameState> = createGameState();
 export const modal: Writable<any> = writable(null);
-

@@ -52,15 +52,13 @@
 	}
 </script>
 
-<div class="mt-20">
-	{#each rows as row}
-		<div class="flex justify-center gap-2 mb-2">
-			{#each row as letter}
-				<div
-					class="px-2 py-1 w-[30px] h-[40px] leading-[30px] text-center transition duration-500 {letter.className}"
-					>{letter.char}</div
-				>
-			{/each}
-		</div>
-	{/each}
-</div>
+{#each rows as row}
+	<div class="flex justify-center gap-2 mb-2">
+		{#each row as letter}
+			<div
+				class="px-2 py-1 w-[30px] h-[40px] leading-[30px] text-center transition duration-500 {letter.className}"
+				>{letter.char}</div
+			>
+		{/each}
+	</div>
+{/each}

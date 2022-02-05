@@ -2,6 +2,7 @@ import Player from './game/Player';
 import type { GameState } from '$lib/types';
 import type { Server as IoServer, Socket as IoSocket } from 'socket.io';
 import type Room from '$lib/game/Room';
+import type { RoomOption } from '$lib/game/Room';
 import Manager from '$lib/game/Manager';
 
 export type Socket = IoSocket<ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketData>;
@@ -15,10 +16,12 @@ export interface ServerToClientEvents {
 export interface ClientToServerEvents {
 	'start-game': () => void;
 	'reset-game': () => void;
+	'reset-round': () => void;
 	'give-up': () => void;
-	'new-word': ({ word: any }, callback: ({ valid: boolean }) => void) => void;
-	'join-request': ({ room: string }) => void;
+	'new-word': ({ word: any }, callback: (args: { valid: boolean }) => void) => void;
+	'join-request': ({ room: string }, callback: (args: { options?: RoomOption; joined: boolean }) => void) => void;
 	'set-username': (username: string) => void;
+	'set-options': (options: RoomOption) => void;
 }
 
 export interface InterServerEvents {
@@ -54,8 +57,18 @@ export default async function initWebsockets(io: Server): Promise<void> {
 			console.log('Client disconnected');
 		});
 
-		socket.on('join-request', ({ room }) => {
-			manager.addToRoom(socket, room);
+		socket.on('join-request', ({ room }, callback) => {
+			const joined = manager.addToRoom(socket, room);
+			if (joined) {
+				callback({
+					joined,
+					options: socket.data.joined.options,
+				});
+			} else {
+				callback({
+					joined,
+				});
+			}
 		});
 
 		socket.on('new-word', ({ word }, callback) => {
@@ -76,8 +89,16 @@ export default async function initWebsockets(io: Server): Promise<void> {
 			socket.data.joined.resetGame();
 		});
 
+		socket.on('reset-round', () => {
+			socket.data.joined.resetRound();
+		});
+
 		socket.on('give-up', () => {
-			socket.data.player.giveUp();
+			socket.data.player.giveup = true;
+		});
+
+		socket.on('set-options', (options) => {
+			socket.data.joined.setOption(options);
 		});
 	});
 }

@@ -51,3 +51,7 @@ body {
 .window .close {
     display: none !important;
 }
+
+.game-lose-state {
+    @apply grayscale;
+}

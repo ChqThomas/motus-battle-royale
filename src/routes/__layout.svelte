@@ -7,13 +7,17 @@
 	import '@fortawesome/fontawesome-free/css/all.css';
 	import AnimatedTitle from '$lib/components/AnimatedTitle.svelte';
 	import Soundboard from '$lib/components/Soundboard.svelte';
-	import { volume, gameState, player, soundboard, modal } from '$lib/stores';
+	import { volume, player, soundboard, modal } from '$lib/stores';
 	import { page } from '$app/stores';
 	import { Modal, bind } from 'svelte-simple-modal';
 	import UserModal from '$lib/components/UserModal.svelte';
+	import OptionsModal from '$lib/components/OptionsModal.svelte';
 
 	const editUser = () => {
 		modal.set(bind(UserModal));
+	};
+	const editOptions = () => {
+		modal.set(bind(OptionsModal));
 	};
 </script>
 
@@ -26,13 +30,11 @@
 		</a>
 		{#if $page.url.pathname.includes('/room/')}
 			<h1 class="ml-6 font-bold text-2xl tracking-tight text-white"
-				><span class="mr-4">-</span> Room {$page.params.name}</h1
-			>
-			<span
-				class="ml-5 inline-flex items-center justify-center px-2 py-1 font-bold leading-none bg-m-blue rounded"
-			>
-				statut : {$gameState.state}
-			</span>
+				><span class="mr-4">-</span> Room {$page.params.name}
+				{#if $player && $player.owner}
+					<i class="cursor-pointer text-xl hover:text-m-yellow ml-2 fa fa-cog" on:click="{editOptions}"></i>
+				{/if}
+			</h1>
 		{/if}
 	</div>
 
