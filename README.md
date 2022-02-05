@@ -35,3 +35,11 @@ Install dependencies, build and start the server
   yarn start
 ```
 
+Optional : Create a .env file with a [Dicolink](https://www.dicolink.com/) API Key
+
+```dotenv
+# .env
+DICOLINK_API_KEY=xxxxxxx
+```
+
+

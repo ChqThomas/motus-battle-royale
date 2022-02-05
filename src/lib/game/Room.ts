@@ -3,6 +3,7 @@ import type Player from '$lib/game/Player';
 import type { GameState } from '$lib/types';
 import type Manager from '$lib/game/Manager';
 import _ from 'lodash';
+import { Definition, getDefinition } from '$lib/dicolink';
 
 export type RoomState = 'waiting' | 'starting' | 'started' | 'finished';
 
@@ -16,6 +17,7 @@ export default class Room {
 	public state: RoomState;
 	public name: string;
 	public word: string;
+	public definition?: Definition;
 	public sockets: Socket[];
 	public players: Player[];
 	public winner: Player;
@@ -29,6 +31,7 @@ export default class Room {
 		this.sockets = [];
 		this.players = [];
 		this.ended = false;
+		this.definition = null;
 		this.options = {
 			maxHealth: 3,
 			maxGuesses: 6,
@@ -93,6 +96,7 @@ export default class Room {
 	public updateClientGameState(): void {
 		this.manager.io.to(this.name).emit('update-game-state', {
 			word: this.word,
+			definition: this.definition,
 			state: this.state,
 			winner: this.winner,
 			players: this.players,
@@ -105,9 +109,11 @@ export default class Room {
 			state: 'starting',
 		});
 		await new Promise((r) => setTimeout(r, 3000));
+		const word = this.manager.getRandomWord();
 		this.updateGameState({
 			state: 'started',
-			word: this.manager.getRandomWord(),
+			word,
+			definition: await getDefinition(word),
 		});
 		console.log(this.word);
 	}
@@ -117,6 +123,7 @@ export default class Room {
 		this.updateGameState({
 			state: 'waiting',
 			word: '',
+			definition: null,
 			players: this.players,
 			winner: null,
 			ended: false,
@@ -128,6 +135,7 @@ export default class Room {
 		this.updateGameState({
 			state: 'waiting',
 			word: '',
+			definition: null,
 			players: this.players,
 			winner: null,
 		});

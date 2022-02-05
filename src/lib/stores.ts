@@ -14,6 +14,7 @@ export interface WritableResetable<T> extends Writable<T> {
 function createGameState() {
 	const defaultState: GameState = {
 		word: '',
+		definition: null,
 		players: [],
 		winner: null,
 		state: 'waiting',

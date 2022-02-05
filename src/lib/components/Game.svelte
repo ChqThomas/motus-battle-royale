@@ -25,7 +25,11 @@
 	let displayed = word.length ? word[0] : '';
 	let locked = true;
 	let lose = false;
+	let size = 50;
+	let sizeStyle;
 	$: currentWord = currentWordInput.toUpperCase();
+	$: size = Math.min(50, 300 / options.maxGuesses);
+	$: sizeStyle = `width: 50px; height: ${size}px`;
 
 	function start() {
 		locked = false;
@@ -140,7 +144,13 @@
 		<div class="mb-8 prose leading-6 text-gray-100 text-center">
 			<div>
 				{#each inputWords as row}
-					<Word on:displayed="{onWordDisplayed}" opponent="{opponent}" requiredWord="{word}" word="{row}" />
+					<Word
+						on:displayed="{onWordDisplayed}"
+						opponent="{opponent}"
+						requiredWord="{word}"
+						word="{row}"
+						size="{size}"
+					/>
 				{/each}
 			</div>
 			{#if inputWords.length < maxGuesses}
@@ -149,7 +159,8 @@
 						<!--				<Word opponent="{opponent}" requiredWord="{word}" word="{currentWord.padEnd(maxLetter, '.')}" />-->
 						{#each i === 0 && currentWordInput === '' ? displayed.padEnd(maxLetter, '.') : currentWord.padEnd(maxLetter, '.') as letter}
 							<div
-								class="text-2xl font-bold border bg-m-blue border-sky-500 px-2 py-1 w-[50px] h-[50px] flex items-center justify-center"
+								style="{sizeStyle}"
+								class="text-2xl font-bold border bg-m-blue border-sky-500 px-2 py-1 flex items-center justify-center"
 							>
 								{#if i === 0}{opponent ? '.' : locked ? '' : letter}{/if}</div
 							>

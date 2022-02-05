@@ -7,6 +7,9 @@
 	export let opponent = false;
 	export let requiredWord = '';
 	export let word = '';
+	export let size = 50;
+	let sizeStyle;
+	$: sizeStyle = `width: 50px; height: ${size}px`;
 
 	let letters = [];
 
@@ -34,7 +37,8 @@
 <div class="flex justify-center mx-auto">
 	{#each letters as letter}
 		<div
-			class="text-2xl font-bold border border-sky-500 px-2 py-1 w-[50px] h-[50px] flex items-center justify-center {letter.className}"
+			style="{sizeStyle}"
+			class="text-2xl font-bold border border-sky-500 px-2 py-1 flex items-center justify-center {letter.className}"
 		>
 			<span class="{letter.subClassName}">{opponent ? '*' : letter.char}</span></div
 		>

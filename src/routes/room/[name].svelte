@@ -34,6 +34,7 @@
 
 	import Countdown from '$lib/components/Countdown.svelte';
 	import Game from '$lib/components/Game.svelte';
+	import Typewriter from 'svelte-typewriter';
 	import type { GameState } from '$lib/types';
 	import { browser } from '$app/env';
 	import _ from 'lodash';
@@ -145,7 +146,7 @@
 
 <div class="battle-grid" bind:clientHeight="{gridHeight}">
 	<div class="battle-grid-left">
-		<div class="h-[150px] mb-3 flex flex-col justify-end">
+		<div class="h-[200px] px-5 mb-3 flex flex-col justify-end">
 			{#if $player}
 				{#if $gameState.state === 'waiting'}
 					{#if $player.owner}
@@ -205,6 +206,20 @@
 							</div>
 						{:else}
 							<div class="mb-5">Il n'y a pas de gagnant !</div>
+						{/if}
+						{#if $gameState.definition}
+							{#key $gameState.definition.id}
+								<div class="mb-5">
+									<Typewriter cascade interval="{20}" delay="{$gameState.word.length * 250}"
+										><a
+											class="text-m-yellow"
+											target="_blank"
+											href="{$gameState.definition.dicolinkUrl}">Définition</a
+										>
+										: <span>{$gameState.definition.definition}</span></Typewriter
+									></div
+								>
+							{/key}
 						{/if}
 						{#if $player.owner}
 							<div>
