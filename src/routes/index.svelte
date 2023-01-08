@@ -20,19 +20,19 @@
 			</h1>
 			<div class="mt-8 leading-6 text-center text-gray-100 prose"> </div>
 
-			<div class="grid gap-0 sm:grid-cols-2">
-				<div class="relative p-8 border-r border-m-blue">
-					<button
-						on:click="{playSolo}"
-						class="px-6 py-4 text-2xl font-bold text-white rounded transition-colors bg-m-blue hover:bg-m-red hover:text-black"
-						>Jouer tout seul</button
-					>
-					<div class="absolute right-0 top-1/2 transform translate-x-7 -translate-y-7">
-						<p
-							class="flex justify-center items-center text-sm font-bold text-gray-500 bg-gray-50 rounded-full"
-						></p>
-					</div>
-				</div>
+			<div class="grid gap-0 sm:grid-cols-1">
+<!--				<div class="relative p-8 border-r border-m-blue">-->
+<!--					<button-->
+<!--						on:click="{playSolo}"-->
+<!--						class="px-6 py-4 text-2xl font-bold text-white rounded transition-colors bg-m-blue hover:bg-m-red hover:text-black"-->
+<!--						>Jouer tout seul</button-->
+<!--					>-->
+<!--					<div class="absolute right-0 top-1/2 transform translate-x-7 -translate-y-7">-->
+<!--						<p-->
+<!--							class="flex justify-center items-center text-sm font-bold text-gray-500 bg-gray-50 rounded-full"-->
+<!--						></p>-->
+<!--					</div>-->
+<!--				</div>-->
 				<div class="p-8">
 					<button
 						on:click="{createGame}"
